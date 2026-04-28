@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimalist Flower Shop</title>
+
+  <!-- Handwritten font -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fafafa;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 30px 0;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+
+    .shop {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      padding: 20px;
+    }
+
+    .flower {
+      width: 160px;
+      background: white;
+      border-radius: 15px;
+      padding: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .flower:hover {
+      transform: scale(1.05);
+    }
+
+    .flower img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    .flower p {
+      margin: 8px 0 0;
+      font-size: 14px;
+    }
+
+    /* LETTER OVERLAY */
+    .letter {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* BOOK EFFECT */
+    .book {
+  width: 80%;
+  max-width: 700px;
+  height: 80vh;
+  perspective: 1200px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+   .page {
+  width: 100%;
+  height: 100%;
+  background: url('https://www.transparenttextures.com/patterns/paper-fibers.png'), #fff;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+
+  padding: 60px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* centers vertically */
+  align-items: center;       /* centers horizontally */
+
+  text-align: center;
+
+  font-family: 'Dancing Script', cursive;
+
+  position: absolute;
+
+  backface-visibility: hidden;
+  transition: transform 0.6s ease;
+
+  animation: fadeIn 0.4s ease;
+}
+
+.flip { 
+  transform: translateY(-5px);
+}
+
+    .page h3 {
+  font-size: 34px;
+  margin-bottom: 20px;
+}
+
+.page p {
+  font-size: 24px;
+  line-height: 1.6;
+  max-width: 90%;
+}
+
+    .btn {
+      margin-top: 20px;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #333;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      position: relative;
+      z-index: 10;
+    }
+
+    .close {
+      margin-top: 10px;
+      font-size: 14px;
+      color: gray;
+      cursor: pointer;
+      font-family: 'Segoe UI', sans-serif;
+      position: relative;
+      z-index: 10;
+    }
+
+    @keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+  </style>
+</head>
+<body>
+
+  <h1>Flower Shop</h1>
+
+  <!-- Sounds -->
+  <audio id="roseSound" src="./music/Aphrodite.mp3"></audio>
+  <audio id="tulipSound" src="./music/Be With You (1).mp3"></audio>
+  <audio id="cosmosSound" src="./music/Someday.mp3"></audio>
+  <audio id="lilySound" src="./music/Edwin McCain - I'll Be (Lyrics).mp3"></audio>
+  <audio id="lilyNext" src="./music/Passenger Seat.mp3" loop></audio>
+
+
+  <div class="shop">
+    <div class="flower" onclick="openLetter('rose')">
+      <img src="./img/rose.webp">
+      <p>rose</p>
+    </div>
+
+    <div class="flower" onclick="openLetter('tulip')">
+      <img src="./img/tulips.webp">
+      <p>tulips</p>
+    </div>
+
+    <div class="flower" onclick="openLetter('cosmos')">
+      <img src="./img/download (2).webp">
+      <p>cosmos</p>
+    </div>
+
+    <div class="flower" onclick="openLetter('lily')">
+      <img src="./img/madonna lily.jfif">
+      <p>lily</p>
+    </div>
+  </div>
+
+  <div id="letter" class="letter">
+    <div class="book">
+
+      <div class="page" id="page">
+        <h3 id="letter-title"></h3>
+        <p id="letter-text"></p>
+
+        <button class="btn" onclick="nextPage()">Proceed</button>
+        <div class="close" onclick="closeLetter()">Close</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let currentFlower = '';
+    let pageIndex = 0;
+
+    const pages = {
+      rose: [
+        { title: "dearest erin, ", text: "if i were to capture the way you exist in my thoughts, i would not begin with logic or reason—but with a rose. for you are not simply someone i know. you are the quiet bloom that refuses to be ignored, even in the most ordinary corners of my day. much like a rose, you do not ask for attention, yet the world seems to soften in your presence regardless. there is something about you—unspoken, almost regal—that lingers long after you’ve gone, like perfume on fabric or sunlight on glass. i can still recall the first time  i saw you, it was the moment that i knew i'd care for you deeply, that i'd go for you. kahit mukha kang masungit, e ano naman rage baiter ako. " },
+
+        { title: "  ", text: "i have come to think of you, as i would a rose in a grand garden: not because you are fragile, but because you are rare in the way you carry both grace and strength in the same breath. you do not unfold all at once. no… you reveal yourself slowly, petal by petal, and in doing so, you make patience feel like devotion. and if i may be so bold, i find myself a rather hopeless admirer of that unfolding." },
+
+        { title: "  ", text: "there are days when i see you and think—how extraordinary it is that someone can be both soft and impossible to ignore. i really do hope that you could see yourself the way i see you.  like a rose that has decided it will not be hidden among thorns or shadows, but will simply be. existing beautifully, unapologetically, as if the world were made to notice." },
+
+        { title: " ", text: "             and i do.           " },
+
+        { title: " ", text: "i notice you, i've seen you. " },
+
+         { title: " ", text: "i notice the way your presence lingers longer than it should in my mind. i notice the way even silence feels gentler when you are part of it. i notice how easily you turn the ordinary into something worthy of remembrance. if love, or something akin to it, were ever to be described properly, i suspect it would resemble a rose garden at dusk—quiet, overwhelming, and entirely incapable of being forgotten once you have walked through it. i will always, always see beauty in you. " },
+
+        { title: " ", text: "and in that garden, i find you." },
+
+        { title: " ", text: "always, someone who will see and admire you." },
+
+      ],
+
+      tulip: [
+        { title: "dear tam, ", text: "if i were to speak of you as the world truly deserves to hear it, i would not begin with grandeur—but with something simpler, something honest. you are what i would call a quiet kind of beautiful. not the kind that demands to be seen, but the kind that simply is, and somehow makes everything around it feel warmer, softer, more alive. like tulips in early spring, when the world is still unsure of itself, yet you stand there anyway—unafraid to bloom." },
+
+         { title: " ", text: "and i find myself proud of you." },
+
+          { title: " ", text: "proud not in the loud, performative way others might declare it, but in a way that sits quietly in my chest whenever i think of you. proud of how you carry yourself. proud of how you remain yourself even when the world tries to shape people into something easier to understand. proud of your softness, proud of you being you, and the way you manage to be both without apology. i, mj would love just to say that i'll always be here for you, i'd love to take care of you, to be with you always. " },
+
+           { title: " ", text: "tulips, as i've learned, do not rush their blooming. they rise when they are ready, not when the world demands it. and in you, tam, i see that same grace—yung hindi minamadali ang sarili, yung marunong maghintay ng tamang panahon para maging buong-buo. " },
+
+            { title: " ", text: "and perhaps that is what i admire most." },
+
+             { title: " ", text: "because you do not try to become someone else just to be accepted. you do not bend yourself into shapes that feel untrue. You simply grow—steady, honest, real. parang tulips na kahit hangin o lamig, nananatiling nakatayo pa rin, marahang yumuyuko pero hindi bumibigay." },
+
+              { title: " ", text: "and i hope you know this: it is a rare thing,  to be yourself so fully in a world that constantly asks you to be less or different. and somehow, you still choose to be you. and that alone makes you something worth admiring endlessly." },
+
+               { title: " ", text: "so if ever you wonder how you are seen, let it be this : you are a garden of tulips in quiet bloom. and i am, without hesitation, proud just to witness it." },
+
+               { title: " ", text: "always, someone who finds beauty in your becoming. " },
+
+
+      ],
+      cosmos: [
+        { title: "dear erin, ", text: "i do not say this lightly, nor do i dress it in exaggeration for effect—because what i feel about you has long settled into something quiet, certain, and unchanging. you are the only person i have ever truly laid my eyes upon in a way that feels… lasting. not in passing interest, not in fleeting admiration, but in a way that lingers. in a way that stays. there are moments when words feel so small compared to the depth of what i feel for you, but i will try to capture even a fraction of it here." },
+
+        { title: "", text: "sa dinami-dami ng tao na nakikita ko, ikaw pa rin ang gustong tignan ng mga mata ko. ikaw pa rin ang gusto kong makita. i search for you, i yearn, and seek you. you've taught me what it means to be seen, to see, truly seen. you've taught me how important admiring is.i hope you know how deeply i admire you, not just because of the things that you can do, but for the heart behind everything you do. i'll gladly spend my days, weeks, or months protecting you, and reminding you every single day of just how extraordinary you are.  " },
+
+        { title: "", text: "if i were to compare you to a flower, it would not be something loud or forced. it would be the cosmos flower—simple at first glance, but impossibly captivating the longer you look. it does not try to overshadow others in the field, yet somehow, your eyes always return to it. soft petals, gentle presence, pero may sariling world na hindi mo ma-ignore." },
+        { title: "", text: "and that is you, erin." },
+
+        { title: "", text: "hindi ka kailangang mag-ingay para mapansin. you don’t compete for attention. still, somehow, in every room, in every moment, my attention finds its way back to you. parang cosmos in a wide garden—lahat ng iba nandiyan, pero ikaw yung laging hinahanap ng paningin ko. i've come to realize something simple, but absolute:." },
+
+        { title: "", text: "wala nang iba." },
+
+        { title: "", text: "not in the sense of blindness to the world, but in the sense that nothing else compares to how naturally you exist in my thoughts. ikaw lang. ikaw lang talaga. can i just say how much i love your eyes? i love your eyes, i love your hair, i love how you carry yourself, and i admir you for being you. thank you for exisisting. for letting me witness you, it is indeed a privilege to see you. ang ganda mo, palagi. " },
+
+        { title: "", text: "and maybe that sounds intense, but it is not chaos—it is clarity. a quiet kind of certainty that doesn’t need to be proven repeatedly, because it already feels true. as for me, you are an art. i'd keep on searching for you in a chaotic canvas, for in that canvas-there is an art, and that is you. woooooooo !" },
+
+
+        { title: "", text: "you are the only bloom i keep returning to. the only presence that feels like it belongs in my attention without effort. parang cosmos na kahit saan ilagay, ikaw pa rin yung titingnan. my heart calls your name, always. so if ever you wonder where you stand in my eyes, erin, let it be this:" },
+
+         { title: "", text: "you are not one of many. you are the one i see—consistently, unmistakably, and only. " },
+
+          { title: "", text: "always, someone who found their quiet focus in you, like a field of cosmos that only leads the eyes back to a single bloom.  " },
+
+       
+      ],
+
+      lily: [
+
+        { title: "to my dearest erin, " , text: "if i were to speak of you through a flower you love, it would be a lily. not because it tries to stand out, but because it simply exists in a way that feels certain, quiet, and full of everything that can be called good. a lily doesn't rush its becoming. it folds in its own time, in its own way, without apology.  " },
+
+        { title: "", text: "and that has always reminded me of you. " },
+
+         { title: "", text: "there’s something about you—something that doesn’t need to shout in order to be felt. you don’t need to compete with anyone, nor force yourself to be more than what you already are. you are already enough in the way you exist—genuinely, naturally. you are you, sapat na ’yan. alam mo naman kung ano ang kaya mo, and i’m proud of you. sobra. words wouldn’t honestly be enough to say everything i mean, but if there’s one thing i’m sure of, it’s this: you are someone worth being proud of, in ways deeper than what can easily be said. and i hope you begin to see this too— higit ka sa tingin mo sa sarili mo. mas malalim ka kaysa sa mga doubts mo. mas malakas ka kaysa sa mga araw na pakiramdam mo hindi ka sapat. mas mahalaga ka kaysa sa iniisip mong kaya mong ibigay lang. sometimes, you look at yourself through a lens that makes you smaller than who you really are. but if you could see yourself the way others do—the way i do—you would realize there is so much more in you than what you allow yourself to believe. " },
+
+          { title: "", text: "you are not just trying. you are becoming.and even now, you are already more than enough.hindi mo kailangang patunayan ang sarili mo sa kahit kanino. not to be valued, not to be seen, not to be chosen. what is meant for you will recognize you without you having to beg for it, without you having to change who you are. and please remember this when things get heavy—it’s okay if you don’t always feel strong. it’s okay if you doubt yourself sometimes. but don’t let those moments define you. they are just moments, not your whole story. because even on the days you feel unsure, you are still someone admirable. still someone worth loving. still someone who carries so much more strength than you give yourself credit for.but more than anything, i want you to know this clearly : " },
+
+           { title: "", text: "i’m proud of you—not just for what you achieve, but for who you are, every single day. and that will always be more than enough. you are the greatest. " },
+
+            { title: "", text: "not in a rushed way, not in something said casually or out of habit—but in a way that comes from truly seeing you. from paying attention to the things you might overlook about yourself, the parts you don’t always give credit to. because in my eyes, you are one of the strongest people i know. hindi mo man napapansin, pero ako napapansin ko—lagi. i see the effort you keep putting in even when it’s hard. isee the way you choose to continue, even in moments where you feel like stopping, even when everything in you feels tired. hindi madali ’yon, erin. and yet you’re still here, still trying, still moving forward in your own way. listen to me when i say this too—hindi mo kailangang maging malakas palagi. pag pagod ka, magpahinga ka. hindi ka nababawasan doon. pag malungkot ka, okay lang umiyak. hindi ka nagiging mahina dahil doon. pag hindi mo na kaya, hindi mo kailangang pilitin ang sarili mo agad bumangon. you’re allowed to pause. you’re allowed to breathe. you’re allowed to take your time. and sa bawat araw na daraan, nandito lang ako. hindi ako mawawala.  " },
+
+             { title: "", text: "nandito ako para ipaalala sa’yo, paulit-ulit kung kinakailangan, na you are doing just great—even on the days you feel like you’re not. kasi hindi nasusukat ang strength sa pagiging okay palagi. sometimes, strength is simply choosing to stay. choosing to feel. choosing to rest when you need to, and choosing to try again when you can. resting wouldn’t make you less strong, okay? it only means you’re human. and there is nothing wrong with that. you’re allowed to take your time. and sa bawat araw na daraan, nandito lang ako. hindi ako mawawala. nandito ako para ipaalala sa’yo, paulit-ulit kung kinakailangan, na you are doing just great—even on the days you feel like you’re not. kasi hindi nasusukat ang strength sa pagiging okay palagi. sometimes, strength is simply choosing to stay. choosing to feel. choosing to rest when you need to, and choosing to try again when you can. resting wouldn’t make you less strong, okay? it only means you’re human. and there is nothing wrong with that. "  },
+ 
+              { title: "", text: "and if ever magulo na ang lahat sa isip mo, if everything feels too much, remember this gently: all is well. hindi man ngayon, pero darating din doon. dahan-dahan lang. wala kang kailangang habulin. everything meant for you will meet you where you are, hindi mo kailangang madaliin ang sarili mo. and even in your slow days, even in your quiet days—you are still someone i look at with so much admiration. so take your time, erin. breathe when you need to. rest when you’re tired. feel what you need to feel. and i’ll be here—steady, patient, and always rooting for you. you are seen, more than you think, more than you give yourself a credit for. you are seen, by me. " },
+
+               { title: "", text: "seen in your quiet resilience. seen in your sincerity. seen in the way you keep going even when you are tired. seen in the way you remain yourself, even when life feels heavy." },
+
+                { title: "", text: "and i need you to understand this without hesitation: you are not invisible here. not to me. there are people who pass through life unnoticed and then there are peiple like you, people who leave an impression without trying, people who stay longer than they realize. you are the kind of presence that lingers, even in silence. and i am, i will always be proud of you.  " },
+
+                { title: "", text: "proud of who you are right now, not just who you are becoming.  " },
+
+                { title: "", text: "proud of your strength, even on djays you don't feel strong.  " },
+
+                { title: "", text: "proud of your softness, even when the world makes that difficult to hold.  " },
+
+                { title: "", text: "and i'm deeply proud of you for being here still  for trying to live still, still exisisting as yourself in a world that often pressures people to become less. and if there are moments when you cannot be strong for yourself, then hear this gently :   " },
+
+                { title: "", text: "you do not have to carry everything alone. nandito ako.  " },
+
+                { title: "", text: "if you feel tired, if you are tired, it’s okay to be tired. hindi mo kailangang pilitin ang sarili mo maging okay agad. if you are overwhelmed, it’s okay to pause—to step back, to breathe, to let yourself feel everything without rushing to fix it. and if there are days when your strength feels far away, when you can’t seem to find it no matter how hard you try, then i will hold that space for you in the ways i can—not to replace your strength, but to remind you that it still exists in you, even when you cannot feel it.  " },
+
+                { title: "", text: "because it never really leaves you. you are not less in your quiet moments. you are not less in your struggles. you are not less when you rest. hindi nababawasan ang halaga mo dahil lang napagod ka. hindi ka nagiging mahina dahil kailangan mong huminto sandali. you are still you—still whole, still worthy, still someone who matters deeply. and please remember this too—i’ll be your crying shoulder, always. sa mga araw na mabigat na lahat, nandito lang ako. kapag wala ka nang masabi, kapag puro luha na lang, you don’t have to hide that from me. you don’t have to pretend you’re okay. you can lean on me, you can let it out, you can just exist as you are, and i’ll stay. no judgment, no pressure—just presence.you are still, still worthy, still valued, still important, and still loved. so let this stay with you, okay?   " },
+
+
+                { title: "", text: "because you don’t have to carry everything alone, erin. not when i’m here, willing to listen, willing to understand, willing to stay even in your quietest and heaviest moments. so rest when you need to. cry if you have to. pause without guilt.you are seen.you are valued. you are loved in ways that do not depend on perfection.and you are enough—even now, even here, even as you are. and i am proud of you in a way that does not fade, even when everything else feels uncertain."   },
+
+                { title: "", text: "always, someone who sees you fully, quietly, and sincerely—like a lily in bloom, steady and true, and someone who will always believe in you even on the days you forget to believe in yourself. " }
+        
+      ], 
+
+    }
+
+    function stopAll() {
+  document.querySelectorAll('audio').forEach(a => {
+    a.pause();
+    a.currentTime = 0;
+  });
+}
+
+    function openLetter(flower) {
+      currentFlower = flower;
+      pageIndex = 0;
+
+      document.getElementById('letter').style.display = 'flex';
+
+      stopAll();
+      document.getElementById(flower + 'Sound').play();
+
+      loadPage();
+    }
+
+    function loadPage() {
+      const page = pages[currentFlower][pageIndex];
+      document.getElementById('letter-title').innerText = page.title;
+      document.getElementById('letter-text').innerText = page.text;
+
+      const pageEl = document.getElementById('page');
+      pageEl.classList.remove('flip');
+      void pageEl.offsetWidth;
+      pageEl.classList.add('flip');
+    }
+
+    function nextPage() {
+      const finalMusic = document.getElementById('finalMusic');
+
+      if (pageIndex < 18) {
+        pageIndex++;
+        loadPage();
+      } else {
+        document.getElementById('letter-title').innerText = "la vie est belle";
+        document.getElementById('letter-text').innerText = "with love, mj. ";
+
+        stopAll();
+        finalMusic.play();
+      }
+    }
+
+    function closeLetter() {
+      document.getElementById('letter').style.display = 'none';
+      stopAll();
+    }
+
+    const lilySound = document.getElementById("lilySound");
+const lilyNext = document.getElementById("lilyNext");
+
+
+lilySound.addEventListener("ended", () => {
+  lilyNext.play();
+});
+    window.onclick = function(e) {
+      if (e.target.id === 'letter') {
+        closeLetter();
+      }
+    }
+  </script>
+
+</body>
+</html>
